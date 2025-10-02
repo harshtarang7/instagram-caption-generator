@@ -8,7 +8,14 @@ export default function Header() {
   const { toggleTheme, isDarkMode } = useThemeContext();
   return (
     <Box
-    borderBottom={'1px solid grey'}>
+    // borderBottom={'1px solid grey'}
+    sx={{
+      backgroundColor: isDarkMode?"":'#FFFFFF !important',
+      borderBottom: isDarkMode ? '1px solid #a0a0a0ff' : '1px solid #E0E7F1 ',
+      boxShadow: isDarkMode ? '' : '0 2px 8px rgba(147, 197, 253, 0.1)',
+      width:'100%',
+    }}
+    >
 
     <Grid 
     container
@@ -23,8 +30,8 @@ export default function Header() {
     >
         <Grid>
         <Image
-        src={"/assets/ai_logo.png"}
-        width={250}
+        src={isDarkMode?"/assets/darkmode-insta.png":"/assets/light.png"}
+        width={150}
         height={100}
         alt="logo"
         />
