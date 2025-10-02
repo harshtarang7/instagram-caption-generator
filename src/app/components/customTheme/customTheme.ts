@@ -8,7 +8,7 @@ const raleway = Raleway({
   weight: ['400', '500', '600', '700'],
 });
 
-export const backgroundConstantColorLight = '#f3f6feff';
+export const backgroundConstantColorLight = '#FDF6F0';
 export const backgroundConstantColorDark = '#1C1C1E';
 
 
@@ -27,7 +27,7 @@ export const darkTheme = createTheme({
       light: "#fce4ec",
     },
     background: {
-      default: "#121212",
+      default: backgroundConstantColorDark,  
       paper: "#1e1e1e",
     },
     text: {
@@ -126,21 +126,21 @@ export const lightTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#1976d2",
+      main: "#FFBFA9",
       dark: "#115293",
       light: "#42a5f5",
     },
     secondary: {
-      main: "#dc004e", 
+      main: "#A6E3E9", 
       dark: "#9a0036",
       light: "#f5336a",
     },
-    background: {
-      default: "#ffffff",
+     background: {
+      default: backgroundConstantColorLight,  
       paper: "#f5f5f5",
     },
     text: {
-      primary: "#000000",
+      primary: "#333333",
       secondary: "#666666",
     },
     divider: "#e0e0e0",
