@@ -78,9 +78,14 @@ export default function Home() {
                 minRows={4}
                 multiline
                 sx={{
-                  backgroundColor: "transparent !important",
-                  width: "100% !important",
-                  // border:'1px solid #ccc'
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                    border: "1px solid #ccc",
+                    backgroundColor: "transparent",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    border: "none", 
+                  },
                 }}
               />
             </FormControl>
@@ -90,19 +95,19 @@ export default function Home() {
             <Typography fontSize={20} fontWeight={700}>
               Additional Booster
             </Typography>
-
-            {boostersData.map((booster, index) => {
-              return (
-                <Box
-                  width={"60%"}
-                  display={"flex"}
-                  alignItems={"center"}
-                  gap={3}
-                  key={index}
-                >
+            <Box
+              // border={1}
+              width={"100%"}
+              display={"flex"}
+              alignItems={"center"}
+              gap={3}
+            >
+              {boostersData.map((booster, index) => {
+                return (
                   <FormControl
+                    key={index}
                     variant="standard"
-                    sx={{ m: 1, minWidth: 120, width: 120 }}
+                    sx={{ m: 1, minWidth: 160 }}
                   >
                     <InputLabel id={booster.id}>{booster.label}</InputLabel>
                     <Select
@@ -110,18 +115,24 @@ export default function Home() {
                       id={booster.id}
                       label={booster.label}
                       value={booster.value}
-                      onChange={booster.onChange as (event:SelectChangeEvent<number | string>)=>void}
+                      onChange={
+                        booster.onChange as (
+                          event: SelectChangeEvent<number | string>
+                        ) => void
+                      }
                     >
-                      {booster.options.map((option,index)=>{
-                        return(
-                          <MenuItem value={option.value}>{option.label}</MenuItem>
-                        )
+                      {booster.options.map((option, index) => {
+                        return (
+                          <MenuItem value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        );
                       })}
                     </Select>
                   </FormControl>
-                </Box>
-              );
-            })}
+                );
+              })}
+            </Box>
           </Box>
         </Paper>
       </Grid>
