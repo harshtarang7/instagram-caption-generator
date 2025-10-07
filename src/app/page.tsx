@@ -39,7 +39,7 @@ export default function Home() {
     handleSeoChange,
   } = useInstagramCaption();
 
-  const {isDarkMode} = useThemeContext()
+  const { isDarkMode } = useThemeContext();
   return (
     <Box pb={3}>
       <Header />
@@ -51,23 +51,23 @@ export default function Home() {
               INSTAGRAM CAPTION GENERATOR
             </Typography>
             <Typography
-              fontSize={22}
+              fontSize={24}
               textAlign={"center"}
               sx={{ color: "gray" }}
             >
-              Your Caption Generator for Instagram & Search Growth.
+              Your AI powered caption generator for Instagram.
             </Typography>
           </Box>
         </Grid>
 
-        <Grid margin={'auto'} size={{ lg: 10, sm: 12, md: 11 }}>
+        <Grid margin={"auto"} size={{ lg: 10, sm: 12, md: 11 }}>
           <Paper
             elevation={3}
             sx={{
               width: "100%",
               margin: "auto",
               mt: 6,
-              mb:3,
+              mb: 3,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
@@ -147,13 +147,22 @@ export default function Home() {
               </Box>
             </Box>
           </Paper>
-          <Button variant="contained" color={isDarkMode?"secondary":"primary" } sx={{
-            fontSize:21,
+          <Button
+            variant="contained"
+            color={isDarkMode ? "secondary" : "primary"}
+            sx={{
+              fontSize: 21,
+              fontWeight:600
+            }}
             
-          }}>Generate Caption</Button>
+          >
+            Generate Caption
+          </Button>
         </Grid>
 
-       <Footer/>
+        <Grid size={{ lg: 10, sm: 12, md: 11 }} margin={"auto"} my={5}>
+          <Footer />
+        </Grid>
       </Grid>
     </Box>
   );

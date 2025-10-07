@@ -10,6 +10,8 @@ export default function Header() {
     <Box
     // borderBottom={'1px solid grey'}
     sx={{
+      position:'sticky',
+      top:0,
       backgroundColor: isDarkMode?"":'#FFFFFF !important',
       borderBottom: isDarkMode ? '1px solid #a0a0a0ff' : '1px solid #E0E7F1 ',
       boxShadow: isDarkMode ? '' : '0 2px 8px rgba(147, 197, 253, 0.1)',

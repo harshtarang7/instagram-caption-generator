@@ -2,7 +2,7 @@ import { Box, Typography } from "@mui/material";
 
 const Footer = () => {
   return (
-    <Box width={"100%"} my={3}>
+    <Box>
       <Typography fontSize={24} fontWeight={600}>
         How to generate caption?
       </Typography>
