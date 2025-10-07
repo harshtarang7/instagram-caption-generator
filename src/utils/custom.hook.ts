@@ -6,6 +6,7 @@ const useInstagramCaption = () => {
   const [hashtags, setHashtags] = React.useState<number>(0);
   const [captionLength, setCaptionLength] = React.useState<string>("");
   const [seo, setSeo] = React.useState<string>("");
+  const [captionVibe, setCaptionVibe] = React.useState<string>("");
 
   const handleHashtagsChange = (event: SelectChangeEvent<number>) => {
     setHashtags(event.target.value as number);
@@ -17,6 +18,10 @@ const useInstagramCaption = () => {
 
   const handleSeoChange = (event: SelectChangeEvent<string>) => {
     setSeo(event.target.value as string);
+  };
+
+  const handleCaptionVibeChange = (event: SelectChangeEvent<string>) => {
+    setCaptionVibe(event.target.value as string);
   };
   const boostersData: (BoosterConfig<number> | BoosterConfig<string>)[] = [
     {
@@ -56,6 +61,22 @@ const useInstagramCaption = () => {
         { value: "low", label: "Low" },
         { value: "medium", label: "Medium" },
         { value: "high", label: "High" },
+      ],
+      minWidth: 120,
+    },
+    {
+      id: "caption-vibe",
+      label: "Caption Vibes",
+      value: captionVibe,
+      onChange: handleCaptionVibeChange,
+      options: [
+        { value: "", label: "None" },
+        { value: "funny", label: "Funny" },
+        { value: "serious", label: "Serious" },
+        { value: "wholesome", label: "Wholesome" },
+        { value: "motivational", label: "Motivational" },
+        { value: "aesthetic", label: "Aesthetic" },
+        { value: "introspective", label: "Introspective" },
       ],
       minWidth: 120,
     },
