@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { CopyAllOutlined } from "@mui/icons-material";
 
 const CustomDialogBox = ({
   open,
@@ -58,9 +59,12 @@ const CustomDialogBox = ({
           it to clipboard and paste it on your caption
         </Typography>
       </DialogContent>
-      <DialogActions>
-        <Button autoFocus variant="contained" color="success" onClick={handleClose}>
-          Copy to Clipboard
+      <DialogActions sx={{pt:3}}>
+        <Button autoFocus variant="contained" color="error" onClick={handleClose} sx={{fontWeight:600}}>
+         Close
+        </Button>
+        <Button autoFocus variant="contained" color="success" sx={{fontWeight:600}}>
+          Copy to Clipboard <CopyAllOutlined sx={{ml:1}}/>
         </Button>
       </DialogActions>
     </Dialog>
