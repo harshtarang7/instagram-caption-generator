@@ -16,12 +16,13 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import { NightsStay, Sunny, Menu as MenuIcon } from "@mui/icons-material";
-import React from "react";
+import React, { useState } from "react";
 import { BoosterConfig } from "@/utils/interfaces";
 import { useInstagramCaption } from "@/utils/custom.hook";
 import { useThemeContext } from "@/components/customTheme/ThemeProvider";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/page";
+import CustomDialogBox from "@/components/dialogBox/page";
 
 export default function Home() {
   const {
@@ -38,6 +39,13 @@ export default function Home() {
     handleCaptionChange,
     handleSeoChange,
   } = useInstagramCaption();
+
+  const [open,setOpen] = useState<boolean>(false);
+  const [close,setClose] = useState();
+
+  const handleClose =()=>setOpen(false)
+  const handleOpen=()=>setOpen(true)
+
 
   const { isDarkMode } = useThemeContext();
   return (
@@ -154,7 +162,7 @@ export default function Home() {
               fontSize: 21,
               fontWeight:600
             }}
-            
+            onClick={handleOpen}
           >
             Generate Caption
           </Button>
@@ -164,6 +172,7 @@ export default function Home() {
           <Footer />
         </Grid>
       </Grid>
+      <CustomDialogBox open={open} onClose={handleClose}/>
     </Box>
   );
 }

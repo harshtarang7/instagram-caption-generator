@@ -9,3 +9,10 @@ export interface BoosterConfig<T = string | number> {
   options: Array<{ value: T | ""; label: string }>;
   minWidth?: number;
 }
+
+export interface CustomDialogBoxProps{
+  shortCaption?:string;
+  longCaption?:string;
+  open:boolean;
+  onClose:()=>void;
+}
