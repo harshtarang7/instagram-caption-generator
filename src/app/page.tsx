@@ -26,18 +26,38 @@ import CustomDialogBox from "@/components/dialogBox/page";
 
 export default function Home() {
   const {
-    hashtags,
+     hashtags,
     captionLength,
     seo,
+    captionVibe,
+    userDescription,
+    generatedCaption,
+    loading,
+    error,
+    aiProvider,
     boostersData,
 
+    // State setters
     setHashtags,
     setCaptionLength,
     setSeo,
+    setCaptionVibe,
+    setUserDescription,
+    setGeneratedCaption,
+    setAiProvider,
+    setError,
 
+    // Handlers
     handleHashtagsChange,
     handleCaptionChange,
     handleSeoChange,
+    handleCaptionVibeChange,
+    handleDescriptionChange,
+    
+    // Actions
+    generateCaption,
+    copyToClipboard,
+    resetForm,
   } = useInstagramCaption();
 
   const [open,setOpen] = useState<boolean>(false);

@@ -16,3 +16,25 @@ export interface CustomDialogBoxProps{
   open:boolean;
   onClose:()=>void;
 }
+
+export interface CaptionGenerationPayload {
+  description: string;
+  hashtags?: number;
+  captionLength?: string;
+  seo?: string;
+  captionVibe?: string;
+  aiProvider?: string;
+}
+
+export interface CaptionGenerationResponse {
+  caption: string;
+  success: boolean;
+  metadata?: {
+    hashtags: number;
+    captionLength: string;
+    seo: string;
+    captionVibe: string;
+    aiProvider: string;
+  };
+  error?: string;
+}

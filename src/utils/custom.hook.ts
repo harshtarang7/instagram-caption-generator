@@ -7,6 +7,11 @@ const useInstagramCaption = () => {
   const [captionLength, setCaptionLength] = React.useState<string>("");
   const [seo, setSeo] = React.useState<string>("");
   const [captionVibe, setCaptionVibe] = React.useState<string>("");
+  const [userDescription, setUserDescription] = React.useState<string>("");
+  const [generatedCaption, setGeneratedCaption] = React.useState<string>("");
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string>("");
+  const [aiProvider, setAiProvider] = React.useState<string>("gemini");
 
   const handleHashtagsChange = (event: SelectChangeEvent<number>) => {
     setHashtags(event.target.value as number);
@@ -23,6 +28,79 @@ const useInstagramCaption = () => {
   const handleCaptionVibeChange = (event: SelectChangeEvent<string>) => {
     setCaptionVibe(event.target.value as string);
   };
+
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    setUserDescription(event.target.value);
+  };
+
+  const generateCaption = async () => {
+    if (!userDescription.trim()) {
+      setError("Please provide a description for your caption");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setGeneratedCaption("");
+    try {
+      const payload = {
+        description: userDescription,
+        hashtags: hashtags,
+        captionLength: captionLength,
+        seo: seo,
+        captionVibe: captionVibe,
+        aiProvider: aiProvider,
+      };
+
+      const response = await fetch("/api/generate-caption", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate caption");
+      }
+
+      const data = await response.json();
+      if (data.success && data.caption) {
+        setGeneratedCaption(data.caption);
+      } else {
+        throw new Error(data.error || "No caption generated");
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const copyToClipboard = async () => {
+    if (generatedCaption) {
+      try {
+        await navigator.clipboard.writeText(generatedCaption);
+        return true;
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    }
+    return false;
+  };
+
+  const resetForm = () => {
+    setHashtags(0);
+    setCaptionLength("");
+    setSeo("");
+    setCaptionVibe("");
+    setUserDescription("");
+    setGeneratedCaption("");
+    setError("");
+  };
+
   const boostersData: (BoosterConfig<number> | BoosterConfig<string>)[] = [
     {
       id: "hashtags",
@@ -83,18 +161,38 @@ const useInstagramCaption = () => {
   ];
 
   return {
-    hashtags,
+   hashtags,
     captionLength,
     seo,
+    captionVibe,
+    userDescription,
+    generatedCaption,
+    loading,
+    error,
+    aiProvider,
     boostersData,
 
+    // State setters
     setHashtags,
     setCaptionLength,
     setSeo,
+    setCaptionVibe,
+    setUserDescription,
+    setGeneratedCaption,
+    setAiProvider,
+    setError,
 
+    // Handlers
     handleHashtagsChange,
     handleCaptionChange,
     handleSeoChange,
+    handleCaptionVibeChange,
+    handleDescriptionChange,
+    
+    // Actions
+    generateCaption,
+    copyToClipboard,
+    resetForm,
   };
 };
 export { useInstagramCaption };
