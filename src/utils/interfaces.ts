@@ -11,9 +11,9 @@ export interface BoosterConfig<T = string | number> {
 }
 
 export interface CustomDialogBoxProps{
-  shortCaption?:string;
-  longCaption?:string;
   open:boolean;
+  caption :string,
+  loading :boolean,
   onClose:()=>void;
 }
 

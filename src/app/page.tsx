@@ -2,6 +2,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   FormControl,
   Grid,
   IconButton,
@@ -26,7 +27,7 @@ import CustomDialogBox from "@/components/dialogBox/page";
 
 export default function Home() {
   const {
-     hashtags,
+   hashtags,
     captionLength,
     seo,
     captionVibe,
@@ -65,6 +66,13 @@ export default function Home() {
 
   const handleClose =()=>setOpen(false)
   const handleOpen=()=>setOpen(true)
+
+   const handleGenerate = async () => {
+    await generateCaption();
+    if (!error) {
+      handleOpen();
+    }
+  };
 
 
   const { isDarkMode } = useThemeContext();
@@ -116,6 +124,8 @@ export default function Home() {
                   placeholder="Describe what you want your caption for....."
                   minRows={4}
                   multiline
+                  value={userDescription}
+                  onChange={handleDescriptionChange}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: 2,
@@ -163,7 +173,7 @@ export default function Home() {
                       >
                         {booster.options.map((option, index) => {
                           return (
-                            <MenuItem value={option.value}>
+                            <MenuItem value={option.value} key={index}>
                               {option.label}
                             </MenuItem>
                           );
@@ -182,9 +192,16 @@ export default function Home() {
               fontSize: 21,
               fontWeight:600
             }}
-            onClick={handleOpen}
+            onClick={handleGenerate}
           >
-            Generate Caption
+            {loading ? (
+              <>
+                <CircularProgress size={24} sx={{ mr: 1 }} color="inherit" />
+                Generating...
+              </>
+            ) : (
+              "Generate Caption"
+            )}
           </Button>
         </Grid>
 
@@ -192,7 +209,7 @@ export default function Home() {
           <Footer />
         </Grid>
       </Grid>
-      <CustomDialogBox open={open} onClose={handleClose}/>
+      <CustomDialogBox open={open} onClose={handleClose} caption={generatedCaption} loading={loading} />
     </Box>
   );
 }
