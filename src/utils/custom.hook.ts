@@ -1,5 +1,5 @@
 import { SelectChangeEvent } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { BoosterConfig } from "./interfaces";
 
 const useInstagramCaption = () => {
@@ -12,6 +12,17 @@ const useInstagramCaption = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string>("");
   const [aiProvider, setAiProvider] = React.useState<string>("gemini");
+
+  const [rateLimit, setRateLimit] = useState<{
+    limit: number;
+    remaining: number;
+    reset: number;
+  } | null>(null);
+
+  const [queueStatus, setQueueStatus] = useState<{
+    position: number;
+    activeJobs: number;
+  } | null>(null);
 
   const handleHashtagsChange = (event: SelectChangeEvent<number>) => {
     setHashtags(event.target.value as number);
@@ -62,11 +73,33 @@ const useInstagramCaption = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to generate caption");
+      const data = await response.json();
+
+        if (!response.ok) {
+      if (response.status === 429) {
+        const resetDate = new Date(data.reset * 1000);
+        const timeUntilReset = Math.ceil((data.reset * 1000 - Date.now()) / 1000 / 60);
+        setError(
+          `Rate limit exceeded! You've used all ${data.limit} requests. Try again in ${timeUntilReset} minutes (at ${resetDate.toLocaleTimeString()})`
+        );
+      } else if (response.status === 503) {
+        setError("Server is busy. Please try again in a few moments.");
+      } else if (response.status === 504) {
+        setError("Request timeout. Please try again.");
+      } else {
+        setError(data.error || "Failed to generate caption");
+      }
+      return;
+    }
+
+      if(data.rateLimit){
+        setRateLimit(data.rateLimit)
+      };
+
+      if(data.queue){
+        setQueueStatus(data.queue);
       }
 
-      const data = await response.json();
       if (data.success && data.caption) {
         setGeneratedCaption(data.caption);
       } else {
@@ -78,6 +111,7 @@ const useInstagramCaption = () => {
       setLoading(false);
     }
   };
+
   const copyToClipboard = async () => {
     if (generatedCaption) {
       try {
@@ -161,7 +195,7 @@ const useInstagramCaption = () => {
   ];
 
   return {
-   hashtags,
+    hashtags,
     captionLength,
     seo,
     captionVibe,
@@ -171,6 +205,8 @@ const useInstagramCaption = () => {
     error,
     aiProvider,
     boostersData,
+    rateLimit,
+    queueStatus,
 
     // State setters
     setHashtags,
@@ -188,7 +224,7 @@ const useInstagramCaption = () => {
     handleSeoChange,
     handleCaptionVibeChange,
     handleDescriptionChange,
-    
+
     // Actions
     generateCaption,
     copyToClipboard,

@@ -1,5 +1,6 @@
 "use client";
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -24,41 +25,24 @@ import { useThemeContext } from "@/components/customTheme/ThemeProvider";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/page";
 import CustomDialogBox from "@/components/dialogBox/page";
+import RateLimitDisaply from "@/components/RateLimitDisplay";
+import RateLimitDisplay from "@/components/RateLimitDisplay";
 
 export default function Home() {
   const {
-   hashtags,
-    captionLength,
-    seo,
-    captionVibe,
     userDescription,
     generatedCaption,
     loading,
     error,
-    aiProvider,
     boostersData,
+    rateLimit,
+    queueStatus,
 
-    // State setters
-    setHashtags,
-    setCaptionLength,
-    setSeo,
-    setCaptionVibe,
-    setUserDescription,
-    setGeneratedCaption,
-    setAiProvider,
     setError,
 
-    // Handlers
-    handleHashtagsChange,
-    handleCaptionChange,
-    handleSeoChange,
-    handleCaptionVibeChange,
     handleDescriptionChange,
     
-    // Actions
     generateCaption,
-    copyToClipboard,
-    resetForm,
   } = useInstagramCaption();
 
   const [open,setOpen] = useState<boolean>(false);
@@ -97,6 +81,16 @@ export default function Home() {
         </Grid>
 
         <Grid margin={"auto"} size={{ lg: 10, sm: 12, md: 11 }}>
+          {
+            rateLimit && (
+              <RateLimitDisplay rateLimit={rateLimit} queueStatus={queueStatus}/>
+            )
+          }
+           {error && (
+            <Alert severity="error" sx={{ mt: 2 }} onClose={() => setError('')}>
+              {error}
+            </Alert>
+          )}
           <Paper
             elevation={3}
             sx={{

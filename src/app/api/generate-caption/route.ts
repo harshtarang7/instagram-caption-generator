@@ -1,12 +1,122 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
+import { QueueManager } from "@/utils/queueManager";
+import { captionLimiter } from "@/utils/rate.limiter";
 dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
+interface CaptionRequest {
+  description: string;
+  hashtags: number;
+  captionLength: string;
+  seo: string;
+  captionVibe: string;
+  aiProvider: string;
+}
+
+const captionQueue = new QueueManager<CaptionRequest>({
+  concurrentLimit: 5,
+  maxQueueSize: 100,
+  jobTimeout: 45000,
+  processor: async (data) => {
+    return await generateCaptionWithAI(data);
+  },
+});
+
+async function generateCaptionWithAI(data: CaptionRequest): Promise<string> {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+  let prompt = `You are an expert Instagram caption writer. Generate an engaging and authentic Instagram caption based on the following requirements:\n\n`;
+  prompt += `Content Description: ${data.description}\n\n`;
+
+  if (data.captionLength) {
+    const lengthGuide = {
+      short: "Keep it brief and punchy (1-2 sentences)",
+      long: "Write a longer, detailed caption (4-6 sentences)",
+      "one liner": "Create a single impactful line",
+    };
+    prompt += `Length: ${
+      lengthGuide[data.captionLength as keyof typeof lengthGuide] ||
+      data.captionLength
+    }\n`;
+  }
+
+  if (data.captionVibe) {
+    const vibeGuide = {
+      funny: "Make it humorous and entertaining",
+      serious: "Keep it professional and thoughtful",
+      wholesome: "Make it warm, positive, and feel-good",
+      motivational: "Make it inspiring and uplifting",
+      aesthetic: "Focus on visual and artistic descriptions",
+      introspective: "Make it reflective and thought-provoking",
+    };
+    prompt += `Tone: ${
+      vibeGuide[data.captionVibe as keyof typeof vibeGuide] || data.captionVibe
+    }\n`;
+  }
+
+  if (data.seo) {
+    const seoGuide = {
+      low: "Include a few basic keywords naturally",
+      medium: "Include relevant keywords and phrases for discoverability",
+      high: "Optimize heavily with trending keywords and searchable phrases",
+    };
+    prompt += `SEO Level: ${
+      seoGuide[data.seo as keyof typeof seoGuide] || data.seo
+    }\n`;
+  }
+
+  if (data.hashtags > 0) {
+    prompt += `\nHashtags: Include exactly ${data.hashtags} relevant and trending hashtags at the end of the caption. Mix popular hashtags with niche-specific ones.\n`;
+  }
+
+  prompt += `\nIMPORTANT:
+- Make the caption authentic and relatable
+- Use emojis sparingly and naturally
+- Ensure it sounds conversational, not robotic
+- Format hashtags on a new line if included
+- Don't use quotation marks around the caption
+- Return ONLY the caption text, nothing else`;
+
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  let caption = response.text();
+
+  caption = caption.trim();
+  caption = caption.replace(/^["']|["']$/g, "");
+
+  return caption;
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const rateLimitResult = await captionLimiter(request);
+    if (!rateLimitResult.allowed) {
+        const resetDate = new Date(rateLimitResult.reset * 1000);
+      const timeUntilReset = Math.ceil((rateLimitResult.reset * 1000 - Date.now()) / 1000 / 60);
+      
+      return NextResponse.json(
+         { 
+          error: `Rate limit exceeded. You can make ${rateLimitResult.limit} requests per hour. Try again in ${timeUntilReset} minutes.`,
+          rateLimitExceeded: true,
+          limit: rateLimitResult.limit,
+          remaining: 0,
+          reset: rateLimitResult.reset,
+          resetDate: resetDate.toISOString()
+        },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+            "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+            "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+            'Retry-After': (timeUntilReset * 60).toString()
+          },
+        }
+      );
+    }
     const body = await request.json();
     const {
       description,
@@ -84,25 +194,39 @@ export async function POST(request: NextRequest) {
     caption = caption.trim();
     caption = caption.replace(/^["']|["']$/g, "");
 
-    return NextResponse.json({
-      caption,
-      success: true,
-      metadata: {
-        hashtags,
-        captionLength,
-        seo,
-        captionVibe,
-        aiProvider,
-      },
-    },
-    {status:200}
-);
-  } catch (error) {
-     console.error("Error generating caption:", error);
-    
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Failed to generate caption",
+        caption,
+        success: true,
+        metadata: {
+          hashtags,
+          captionLength,
+          seo,
+          captionVibe,
+          aiProvider,
+        },
+        rateLimit: {
+          limit: rateLimitResult.limit,
+          remaining: rateLimitResult.remaining,
+          reset: rateLimitResult.reset,
+        },
+      },
+      {
+        status: 200,
+        headers: {
+          "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+          "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+          "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Error generating caption:", error);
+
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to generate caption",
         success: false,
       },
       { status: 500 }
